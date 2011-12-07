@@ -1,0 +1,6 @@
+# Ignore everything
+*
+
+# but not VHDL and UCF
+!*.vhd
+!*.ucf
