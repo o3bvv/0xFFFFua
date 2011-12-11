@@ -69,9 +69,8 @@ BEGIN
 			O_TXD	=> O_TXD,
 			O_RDY 	=> O_RDY);		
 	
-	process(I_CLK,O_RDY)
+	process(I_CLK)
 		variable div: natural := 0;
-		variable wrd: natural := 0;
 	begin
 		if (I_CLK='1' and I_CLK'event) then
 			if (div=L_baud_div) then
@@ -80,8 +79,7 @@ BEGIN
 			else 
 				div := div+1;
 			end if;
-		end if;
-		
+		end if;		
 	end process;
 	
 	process(O_RDY)

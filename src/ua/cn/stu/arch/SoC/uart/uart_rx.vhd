@@ -28,9 +28,7 @@ architecture Behavioral of uart_rx is
 	
 	signal L_rxd 	: STD_LOGIC := '1';
 	
-	constant L_VCC 	: STD_LOGIC := '1';
-	constant L_GND 	: STD_LOGIC := '0';
-	
+	signal l_DATA	: STD_LOGIC_VECTOR (G_DATA_WIDTH-1 downto 0) := (others=> '0');
 begin
 	
 	process(I_CLK, I_RST, I_E)
@@ -62,7 +60,7 @@ begin
 					end if;
 					
 				when STOP =>
-					O_DATA  <= v_DATA;
+					l_DATA  <= v_DATA;
 					L_state <= IDLE;
 			end case;
 		end if;
@@ -70,4 +68,5 @@ begin
 
 	L_rxd  <= I_RXD;
 	O_RDY  <= '1' when L_state=IDLE else '0';
+	O_DATA  <= l_DATA;
 end Behavioral;
