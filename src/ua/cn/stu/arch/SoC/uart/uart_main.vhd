@@ -64,14 +64,14 @@ architecture arch of uart_main is
 	
 	type t_baud_divs is
 		array(0 to 4) of natural;	
-	constant L_baud_divs: t_baud_divs := (
+	constant C_baud_divs: t_baud_divs := (
 		20832-1,	--  1200 (0)
 		10416-1,	--  2400 (1)
 		5208-1,		--  4800 (2)
 		2604-1,		--  9600 (3)
 		1302-1);	-- 19200 (4)
 	
-	signal L_baud_div : natural := 2604-1;
+	signal L_baud_div : natural := C_baud_divs(3);
 	
 	signal L_clk : STD_LOGIC := '0';
 begin
@@ -111,10 +111,10 @@ begin
 				
 				if (I_WR='1' and I_BRS='1') then
 					v_new_baud_div := conv_integer(UNSIGNED(I_DATA(2 downto 0)));
-					if (v_new_baud_div>L_baud_divs'length) then
+					if (v_new_baud_div>C_baud_divs'length) then
 						v_new_baud_div := 0;
 					end if;
-					L_baud_div <= L_baud_divs(v_new_baud_div);
+					L_baud_div <= C_baud_divs(v_new_baud_div);
 				end if;
 				
 				L_clk <= not L_clk;
