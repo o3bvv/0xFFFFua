@@ -8,7 +8,8 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 
 entity uart_main is
 	generic(
-		G_DATA_WIDTH : natural := 8);
+		G_DATA_WIDTH : natural := 8;
+		G_RD_SAMPLES : natural := 14);
 	port (
 		I_CLK 		: in	STD_LOGIC;
 		I_RST 		: in	STD_LOGIC;
@@ -43,12 +44,13 @@ architecture arch of uart_main is
 			O_TXD	: out	STD_LOGIC);
 	end component;
 	
-	signal TX_RDY	: STD_LOGIC;
+	signal TX_CLK	: STD_LOGIC := '0';
 	signal TX_WR	: STD_LOGIC;
 	
 	component uart_rx is
 		generic(
-			G_DATA_WIDTH : natural := G_DATA_WIDTH);
+			G_DATA_WIDTH : natural := G_DATA_WIDTH;
+			G_RD_SAMPLES : natural := G_RD_SAMPLES);
 		port (
 			I_CLK	: in	STD_LOGIC;
 			I_RST	: in	STD_LOGIC;		
@@ -60,16 +62,16 @@ architecture arch of uart_main is
 			O_RDY	: out	STD_LOGIC);
 	end component;
 	
-	signal RX_RDY 	: STD_LOGIC;
+	signal RX_CLK 	: STD_LOGIC := '0';
 	
 	type t_baud_divs is
 		array(0 to 4) of natural;	
 	constant C_baud_divs: t_baud_divs := (
-		20832-1,	--  1200 (0)
-		10416-1,	--  2400 (1)
-		5208-1,		--  4800 (2)
-		2604-1,		--  9600 (3)
-		1302-1);	-- 19200 (4)
+		(20832/G_RD_SAMPLES)-1,	--  1200 (0)
+		(10416/G_RD_SAMPLES)-1,	--  2400 (1)
+		(5208/G_RD_SAMPLES)-1,	--  4800 (2)
+		(2604/G_RD_SAMPLES)-1,	--  9600 (3)
+		(1302/G_RD_SAMPLES)-1);	-- 19200 (4)
 	
 	signal L_baud_div : natural := C_baud_divs(3);
 	
@@ -78,7 +80,7 @@ begin
 
 	transmitter: uart_tx
 		port map(
-			I_CLK	=> L_clk,
+			I_CLK	=> TX_CLK,
 			I_RST	=> I_RST,
 			I_DATA	=> I_DATA,
 			I_WR	=> TX_WR,
@@ -91,7 +93,7 @@ begin
 
 	reciever: uart_rx
 		port map(
-			I_CLK	=> L_clk,
+			I_CLK	=> RX_CLK,
 			I_RST	=> I_RST,
 			I_RD	=> I_RD,
 			I_E		=> I_RXE,
@@ -101,14 +103,15 @@ begin
 			O_RDY	=> O_RX_RDY);
 
 	process(I_CLK, I_RST)
-		variable v_div: natural := 0;
-		variable v_new_baud_div: natural;
+		variable v_div			: natural := 0;
+		variable v_div_samples	: natural range 0 to G_RD_SAMPLES := 0;
+		variable v_new_baud_div	: natural;
 	begin
 		if (I_RST='1') then
 			v_div := 0;
 		elsif (I_CLK='1' and I_CLK'event) then
-			if (v_div=L_baud_div) then				
-				
+			
+			if (v_div=L_baud_div) then
 				if (I_WR='1' and I_BRS='1') then
 					v_new_baud_div := conv_integer(UNSIGNED(I_DATA(2 downto 0)));
 					if (v_new_baud_div>C_baud_divs'length) then
@@ -117,7 +120,15 @@ begin
 					L_baud_div <= C_baud_divs(v_new_baud_div);
 				end if;
 				
-				L_clk <= not L_clk;
+				RX_CLK <= not RX_CLK;
+				
+				if (v_div_samples<(G_RD_SAMPLES-1)) then
+					v_div_samples := v_div_samples+1;
+				else
+					TX_CLK <= not TX_CLK;
+					v_div_samples := 0;
+				end if;
+
 				v_div := 0;
 			else 
 				v_div := v_div+1;
