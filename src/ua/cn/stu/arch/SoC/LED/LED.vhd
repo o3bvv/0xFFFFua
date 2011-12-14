@@ -19,11 +19,11 @@ architecture Behavioral of LED is
 	
 	signal L_led	: STD_LOGIC_VECTOR(7 downto 0) := C_GND8;
 begin
-	process(I_CLK,I_RST)
+	process(I_RST, I_CLK)
 	begin
 		if (I_RST='1') then
 			L_led <= C_GND8;
-		elsif (I_E='1' and I_WR='1') then
+		elsif (I_CLK='1' and I_CLK'event and I_E='1' and I_WR='1') then
 			L_led <= I_DATA;
 		end if;
 	end process;
