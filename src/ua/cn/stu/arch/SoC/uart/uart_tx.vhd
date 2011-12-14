@@ -38,14 +38,14 @@ begin
 	process(I_CLK, I_RST, I_E)
 		variable v_DATA			: STD_LOGIC_VECTOR (G_DATA_WIDTH-1 downto 0);
 		variable v_txd_number	: natural range 0 to G_DATA_WIDTH;
-	begin
+	begin		
 		if(I_RST='1' or I_E='0') then
 			L_state <= IDLE;
 		elsif(I_CLK='1' and I_CLK'event) then
 			case L_state is
 				
 				when IDLE =>
-					L_txd 	<= L_VCC;
+					L_txd 	<= L_VCC;					
 					if (I_WR='1' and I_RDY_A='1') then
 						L_state <= START;
 					end if;

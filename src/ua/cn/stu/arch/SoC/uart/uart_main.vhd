@@ -45,6 +45,7 @@ architecture arch of uart_main is
 	end component;
 	
 	signal TX_CLK	: STD_LOGIC := '0';
+	signal TX_RDY	: STD_LOGIC := '1';
 	signal TX_WR	: STD_LOGIC;
 	
 	component uart_rx is
@@ -63,6 +64,7 @@ architecture arch of uart_main is
 	end component;
 	
 	signal RX_CLK 	: STD_LOGIC := '0';
+	signal RX_RDY	: STD_LOGIC := '1';
 	
 	type t_baud_divs is
 		array(0 to 4) of natural;	
@@ -87,9 +89,10 @@ begin
 			I_E		=> I_TXE,
 			I_RDY_A	=> I_TX_RDY_A,
 			O_TXD	=> O_TXD,
-			O_RDY	=> O_TX_RDY);
-
-	TX_WR <= I_WR and (not I_BRS);
+			O_RDY	=> TX_RDY);
+	
+	O_TX_RDY <= TX_RDY;
+	TX_WR	 <= I_WR and (not I_BRS);
 
 	reciever: uart_rx
 		port map(
@@ -100,39 +103,69 @@ begin
 			I_RDY_A	=> I_RX_RDY_A,
 			I_RXD	=> I_RXD,
 			O_DATA	=> O_DATA,
-			O_RDY	=> O_RX_RDY);
+			O_RDY	=> RX_RDY);
+	
+	O_RX_RDY <= RX_RDY;
 
-	process(I_CLK, I_RST)
-		variable v_div			: natural := 0;
+	TX_CLK_GEN:process(I_CLK, I_RST)
+		variable v_div_tx		: natural := 0;
 		variable v_div_samples	: natural range 0 to G_RD_SAMPLES := 0;
 		variable v_new_baud_div	: natural;
 	begin
 		if (I_RST='1') then
-			v_div := 0;
-		elsif (I_CLK='1' and I_CLK'event) then
-			
-			if (v_div=L_baud_div) then
-				if (I_WR='1' and I_BRS='1') then
+			v_div_tx := 0;
+			v_div_samples := 0;
+		elsif (I_CLK='1' and I_CLK'event) then						
+			if (TX_WR='0' and I_TXE='0' and TX_RDY='1') then
+				TX_CLK	<= '0';
+				v_div_tx:= L_baud_div;
+				v_div_samples := G_RD_SAMPLES;				
+			elsif (TX_WR='1' and I_TXE='1' and TX_RDY='1') then
+				
+				if (I_BRS='1') then
 					v_new_baud_div := conv_integer(UNSIGNED(I_DATA(2 downto 0)));
 					if (v_new_baud_div>C_baud_divs'length) then
 						v_new_baud_div := 0;
 					end if;
 					L_baud_div <= C_baud_divs(v_new_baud_div);
-				end if;
-				
-				RX_CLK <= not RX_CLK;
-				
-				if (v_div_samples<(G_RD_SAMPLES-1)) then
-					v_div_samples := v_div_samples+1;
 				else
-					TX_CLK <= not TX_CLK;
-					v_div_samples := 0;
+					TX_CLK <= '1';
+				end if;				
+			elsif (TX_RDY='0') then
+				if (v_div_tx=L_baud_div) then					
+					if (v_div_samples<(G_RD_SAMPLES-1)) then
+						v_div_samples := v_div_samples+1;
+					else
+						TX_CLK <= not TX_CLK;
+						v_div_samples := 0;
+					end if;
+					v_div_tx := 0;
+				else 
+					v_div_tx := v_div_tx+1;
 				end if;
-
-				v_div := 0;
-			else 
-				v_div := v_div+1;
 			end if;
+		end if;
+	end process;
+
+	RX_CLK_GEN:process(I_CLK, I_RST)		
+		variable v_div_rx		: natural := 0;
+	begin
+		if (I_RST='1') then
+			v_div_rx := 0;
+		elsif (I_CLK='1' and I_CLK'event) then						
+			if (I_RD='0' and I_RXE='0' and RX_RDY='1') then
+				RX_CLK	<= '0';
+				v_div_rx:= L_baud_div;				
+			elsif (I_RD='1' and I_RXE='1' and RX_RDY='1') then
+				RX_CLK <= '1';				
+			elsif (RX_RDY='0') then
+				if (v_div_rx=L_baud_div) then
+					RX_CLK <= not RX_CLK;
+					v_div_rx := 0;
+				else 
+					v_div_rx := v_div_rx+1;
+				end if;
+			end if;			
 		end if;		
 	end process;
 end arch;
