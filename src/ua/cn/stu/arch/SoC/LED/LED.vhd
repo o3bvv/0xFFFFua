@@ -6,6 +6,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity LED is
 	port (
+		I_CLK 	: in	STD_LOGIC;
 		I_RST 	: in	STD_LOGIC;
 		I_E 	: in	STD_LOGIC;
 		I_WR 	: in	STD_LOGIC;
@@ -18,7 +19,7 @@ architecture Behavioral of LED is
 	
 	signal L_led	: STD_LOGIC_VECTOR(7 downto 0) := C_GND8;
 begin
-	process(I_RST)
+	process(I_CLK,I_RST)
 	begin
 		if (I_RST='1') then
 			L_led <= C_GND8;

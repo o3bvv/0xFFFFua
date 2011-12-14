@@ -349,7 +349,7 @@ begin
 			L_mpu_state <= FREE;
 			L_dvu_state <= FREE;
 		elsif(I_CLK='1' and I_CLK'event) then
-			
+
 			case L_mpu_state is
 				when FREE => 
 					if I_START='1' and L_flg_mpu='1' then

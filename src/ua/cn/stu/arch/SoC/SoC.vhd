@@ -111,6 +111,7 @@ architecture arch of SoC is
 	
 	component LED is
 		port (
+			I_CLK 	: in	STD_LOGIC;
 			I_RST 	: in	STD_LOGIC;
 			I_E 	: in	STD_LOGIC;
 			I_WR 	: in	STD_LOGIC;
@@ -262,15 +263,16 @@ begin
 			I31		=> MUX_I_DATA_IN(31),
 			O		=> CPU_I_DATA);
 	
-	PRL_00_LED : LED
+	PRL_LED : LED
 		port map(
+			I_CLK 	=> I_CLK,
 			I_RST 	=> I_RST,
 			I_E 	=> L_CS(ID_PRL_LED),
 			I_WR 	=> CPU_O_WR_PRL,
 			I_DATA	=> CPU_O_DATA(7 downto 0),
 			O_LED	=> O_LED);
 
-	UART: uart_main PORT MAP (
+	PRL_FUART: uart_main PORT MAP (
 			I_CLK 		=> I_CLK,
 			I_RST 		=> I_RST,
 			I_WR 		=> CPU_O_WR_PRL,
@@ -314,7 +316,6 @@ begin
 		variable v_clk : natural range 0 to CPU_clk_div-1 := 0;
 	begin
 		if(I_CLK='1' and I_CLK'event) then			
-		
 			if (v_clk=(CPU_clk_div-1)) then
 				CPU_I_CLK <= NOT CPU_I_CLK;
 				v_clk := 0;
