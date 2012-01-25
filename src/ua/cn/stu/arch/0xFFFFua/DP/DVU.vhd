@@ -37,7 +37,7 @@ architecture Behavioral of DVU is
 
 begin
 	
-	process(I_CLK, I_RST, I_QO)
+	process(I_CLK, I_RST, I_QO, L_signFinal)
 		variable v_D	: STD_LOGIC_VECTOR (30 downto 0) := (others => '0');
 		variable v_R 	: STD_LOGIC_VECTOR (30 downto 0) := (others => '0');
 		variable v_Q	: STD_LOGIC_VECTOR (14 downto 0) := (others => '0');
