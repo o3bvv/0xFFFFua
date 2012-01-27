@@ -72,6 +72,7 @@ begin
 					L_cz	<= ST_body(ST_ptr - 1)(11 downto 10);
 					ST_ptr	<= ST_ptr - 1;
 				when "100" => L_addr <= I_DATA;
+					report "JJJJJJJJJJJJJJJJJJj";
 				when "101" => L_addr <= 
 					conv_std_logic_vector(
 						SIGNED(L_addr) + SIGNED(I_DATA(8 downto 0)), L_addr'length);

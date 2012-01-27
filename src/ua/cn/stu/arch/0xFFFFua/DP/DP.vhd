@@ -179,6 +179,8 @@ architecture arch of DP is
 	
 begin
 
+	
+
 	RF_isntance: RF
 		port map(
 			I_CLK 		=> I_CLK,
@@ -191,6 +193,17 @@ begin
 			I_B			=> RF_b,
 			O_C			=> RF_c,
 			O_D			=> RF_d);
+
+
+	process(RF_b)
+	begin
+		report 
+				  std_logic'image(RF_b(4))
+				& std_logic'image(RF_b(3))
+				& std_logic'image(RF_b(2))
+				& std_logic'image(RF_b(1))
+				& std_logic'image(RF_b(0));
+	end process;
 
 	MUX_B: 
 		RF_b <= 
@@ -349,7 +362,6 @@ begin
 			L_mpu_state <= FREE;
 			L_dvu_state <= FREE;
 		elsif(I_CLK='1' and I_CLK'event) then
-
 			case L_mpu_state is
 				when FREE => 
 					if I_START='1' and L_flg_mpu='1' then

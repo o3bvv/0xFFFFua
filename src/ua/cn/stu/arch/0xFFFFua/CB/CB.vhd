@@ -52,6 +52,7 @@ begin
 		variable v_wait_addr_set : STD_LOGIC := '0';
 	begin
 		if (I_RST='1') then
+			O_F_IP <= "000";
 			v_wait_addr_set := '0';
 		elsif (I_CLK='1' and I_CLK'event) then			
 					
@@ -171,14 +172,7 @@ begin
 			
 			O_START_DP 	<= v_flg_ALOP;
 	
-			O_RET 		<= v_flg_RET;			
-			
-			O_RD_DP		<= v_flg_UD or v_flg_OUT;
-			O_RD_PRL	<= v_flg_IN;
-			
-			O_WR_RAM	<= v_flg_UD;
-			O_WR_DP		<= v_flg_IN or v_flg_LD or v_flg_LI;
-			O_WR_PRL 	<= v_flg_OUT and I_RDY_PRL;
+			O_RET 		<= v_flg_RET;					
 					
 			if (v_flg_LI='1') then
 				O_DP_DI_ADDR <= "01";
@@ -186,15 +180,30 @@ begin
 				O_DP_DI_ADDR <= "10";
 			else  -- LD
 				O_DP_DI_ADDR <= "00";
-			end if;
+			end if;			
 
 			if (v_wait_addr_set='0') then
 			
 				O_F_IP <= "000";
+				
+				O_RD_DP		<= '0';
+				O_RD_PRL	<= '0';
+				
+				O_WR_RAM	<= '0';
+				O_WR_DP		<= '0';
+				O_WR_PRL 	<= '0';
+				
 				v_wait_addr_set := '1';
-			else
+			else			
 				
 				v_wait_addr_set := '0';
+				
+				O_RD_DP		<= v_flg_UD or v_flg_OUT;
+				O_RD_PRL	<= v_flg_IN;
+				
+				O_WR_RAM	<= v_flg_UD;
+				O_WR_DP		<= v_flg_IN or v_flg_LD or v_flg_LI;
+				O_WR_PRL 	<= v_flg_OUT and I_RDY_PRL;				
 				
 				if ((v_flg_ALOP='1' and I_RDY_DP='0')
 					or ((v_flg_IN='1' or v_flg_OUT='1') and I_RDY_PRL='0')
@@ -204,10 +213,11 @@ begin
 				elsif (v_flg_JMPL='1') then
 				
 					O_F_IP	<= 	"100"; -- do JMPL
+					report "JMPL";
 				elsif (v_flg_BRA='1' 
 					and (v_BRA_condition="001" or v_BRA_condition_satisfied='1')) then
 				
-					O_F_IP	<= 	"101"; -- do JMP
+					O_F_IP	<= 	"101"; -- do JMP					
 				elsif (v_flg_RET='1') then
 				
 					O_F_IP	<= 	"011"; -- do RET
@@ -218,12 +228,11 @@ begin
 				
 					O_F_IP	<= 	"110"; -- go +2
 					
-				else
-				
+				else				
 					O_F_IP	<= 	"001"; -- go +1
 				end if;			
 			end if;
-		end if;
+		end if;				
 	end process;
 
 end Behavioral;

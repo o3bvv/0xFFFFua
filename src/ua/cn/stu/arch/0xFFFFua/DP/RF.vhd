@@ -32,7 +32,7 @@ begin
 			v_addr_b,
 			v_addr_c,
 			v_addr_d : natural range 0 to 31;
-	begin		
+	begin
 	
 		v_addr_d := TO_INTEGER(UNSIGNED(I_AD));
 	
@@ -48,12 +48,12 @@ begin
 			v_addr_c := TO_INTEGER(UNSIGNED(I_AC));
 		end if;
 		
-		if (I_CLK='1' and I_CLK'event and I_WR='1') then
-			RF_body(v_addr_b) <= I_B;
+		if (I_CLK='1' and I_CLK'event and I_WR='1') then			
+			RF_body(v_addr_b) <= I_B;			
 		end if;
 		
 		O_C <= RF_body(v_addr_c);
-		O_D <= RF_body(v_addr_d);
+		O_D <= RF_body(v_addr_d);			
 	end process;
 	
 end Behavioral;
