@@ -62,14 +62,14 @@ Supported commands
 
 4.1 **jmp**  : Short jump.  
 4.2 **jmpl** : Long jump.  
-4.2 **jz**   : Short jump if zero flag = 1 (equality).  
-4.2 **jnz**  : Short jump if zero flag = 0 (not equality).  
-4.2 **jc**   : Short jump if carry flag = 1.  
-4.2 **jnc**  : Short jump if carry flag = 0.  
-4.2 **ja**   : Short jump if above.  
-4.2 **jb**   : Short jump if below.  
-4.x **call** : Subprogram call.  
-4.x **ret**  : Subprogram return.  
+4.3 **jz**   : Short jump if zero flag = 1 (equality).  
+4.4 **jnz**  : Short jump if zero flag = 0 (not equality).  
+4.5 **jc**   : Short jump if carry flag = 1.  
+4.6 **jnc**  : Short jump if carry flag = 0.  
+4.7 **ja**   : Short jump if above.  
+4.8 **jb**   : Short jump if below.  
+4.9 **call** : Subprogram call.  
+4.10 **ret**  : Subprogram return.  
 
 
 **5. Data transferring**
