@@ -90,7 +90,7 @@ Supported commands
 Environment
 -----------
 
-CPU can be tested on SoC which was developed for this purpose. SoC includes:
+CPU can be tested on SoC which was developed for this purpose. SoC includes:  
 1. **LED line**.  
 2. **Switch line**.  
 3. **LCD** module.  
