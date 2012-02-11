@@ -20,6 +20,7 @@ relative addressing (covers +255 and -256 addresses). Has internal 32-deep stack
 which allows to store 32 addresses and flags.  
 **Peripherals**: Addressing up to 32 peripheral devices.  
 
+
 Supported commands
 ------------------
 
@@ -34,12 +35,14 @@ Supported commands
 1.7 **div** : Division (result: quotient (div) and remainder (mod)).  
 2.8 **cmp** : Substraction without saving result;  
 
+
 **2. Logical**
 
 2.1 **and**  : Logical conjunction.  
 2.2 **or**   : Logical disjunction.  
 2.3 **xor**  : Exclusive disjunction;  
 2.4 **test** : Logical conjunction without saving result;  
+
 
 **3. Shifting**
 
@@ -52,7 +55,8 @@ Supported commands
 3.7 **srx** : Shift right and set MSB to it's previous value.  
 3.8 **src** : Shift right and set MSB to carry flag value.  
 3.9 **rl**  : Roll left.  
-3.10**rr**  : Roll right.  
+3.10 **rr**  : Roll right.  
+
 
 **4. Jumping**
 
@@ -67,6 +71,7 @@ Supported commands
 4.x **call** : Subprogram call.  
 4.x **ret**  : Subprogram return.  
 
+
 **5. Data transferring**
 
 5.1 **cpy** : Copy from one register to another.  
@@ -76,15 +81,16 @@ Supported commands
 5.5 **in**  : Load data from peripheral device to register.  
 5.6 **out** : Upload data from register to peripheral device.  
 
+
 **6. Other**
 
 6.1 **nop** : No operation.
+
 
 Environment
 -----------
 
 CPU can be tested on SoC which was developed for this purpose. SoC includes:
-
 1. **LED line**.  
 2. **Switch line**.  
 3. **LCD** module.  
