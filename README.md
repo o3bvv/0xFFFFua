@@ -33,7 +33,7 @@ Supported commands
 1.5 **neg** : Negativation (multiply by -1).  
 1.6 **mul** : Multiplication.  
 1.7 **div** : Division (result: quotient (div) and remainder (mod)).  
-2.8 **cmp** : Substraction without saving result;  
+1.8 **cmp** : Substraction without saving result;  
 
 
 **2. Logical**
