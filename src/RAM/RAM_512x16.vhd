@@ -1,0 +1,113 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+library UNISIM;
+use UNISIM.VComponents.ALL;
+
+entity RAM_512x16 is
+	port (		
+		I_CLK	: in	STD_LOGIC; 						-- CLOCK
+		I_RST	: in	STD_LOGIC; 						-- RESET
+		
+		I_WR	: in	STD_LOGIC; 						-- '0' : DATA READ
+														-- '1' : DATA WRITE
+														
+		I_ADDR	: in	STD_LOGIC_VECTOR (8 downto 0);	-- ADDRESS
+		
+		I_DATA	: in	STD_LOGIC_VECTOR (15 downto 0);	-- INPUT DATA
+		O_DATA	: out	STD_LOGIC_VECTOR (15 downto 0));-- OUTPUT DATA
+end RAM_512x16;
+
+architecture arch of RAM_512x16 is
+
+	component RAMB4_S16 is
+		generic (
+			INIT_00 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_01 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_02 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_03 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_04 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_05 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_06 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_07 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_08 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_09 : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0A : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0B : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0C : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0D : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0E : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000";
+			INIT_0F : bit_vector := X"0000000000000000000000000000000000000000000000000000000000000000");
+			
+		port (
+			DI: in STD_LOGIC_VECTOR (15 downto 0);
+			EN : in STD_ULOGIC;
+			WE : in STD_ULOGIC;
+			RST : in STD_ULOGIC;
+			CLK : in STD_ULOGIC;
+			ADDR: in STD_LOGIC_VECTOR (7 downto 0);
+			DO : out STD_LOGIC_VECTOR (15 downto 0));
+	end component;
+	
+	constant L_GND	: STD_LOGIC := '0';
+	constant L_VCC	: STD_LOGIC := '1';
+	
+	type SLV2x16 is 
+		array(0 to 1) of STD_LOGIC_VECTOR(15 downto 0);
+	
+	signal RAM_out	: SLV2x16 := (others => (others => L_GND));
+	
+	signal RAM_cs	: STD_LOGIC_VECTOR(1 downto 0);
+	signal RAM_we	: STD_LOGIC_VECTOR(1 downto 0);
+	
+	type SLV32x256 is 
+		array(0 to 31) of bit_vector(255 downto 0);
+	
+	constant RAM_init : SLV32x256 := (
+		others => X"0000000000000000000000000000000000000000000000000000_003A_0059_0058");
+		
+	signal L_addr_high : STD_LOGIC := '0';
+begin
+
+	L_addr_high <= I_ADDR(8);
+	
+	with L_addr_high select
+		RAM_cs <= "01" when '0',
+				  "10" when '1',
+				  "00" when others;
+
+	MAIN : for i in 0 to 1
+	generate
+		RAM_we(i) <= RAM_cs(i) and I_WR;
+		
+		RAM_UNIT: RAMB4_S16 
+			generic map(
+				INIT_00 => RAM_init(16*i+0),
+				INIT_01 => RAM_init(16*i+1),
+				INIT_02 => RAM_init(16*i+2),
+				INIT_03 => RAM_init(16*i+3),
+				INIT_04 => RAM_init(16*i+4),
+				INIT_05 => RAM_init(16*i+5),
+				INIT_06 => RAM_init(16*i+6),
+				INIT_07 => RAM_init(16*i+7),
+				INIT_08 => RAM_init(16*i+8),
+				INIT_09 => RAM_init(16*i+9),
+				INIT_0A => RAM_init(16*i+10),
+				INIT_0B => RAM_init(16*i+11),
+				INIT_0C => RAM_init(16*i+12),
+				INIT_0D => RAM_init(16*i+13),
+				INIT_0E => RAM_init(16*i+14),
+				INIT_0F => RAM_init(16*i+15))
+			port map (
+				CLK		=> I_CLK,
+				RST 	=> I_RST,
+				EN		=> L_VCC,
+				WE 		=> RAM_we(i),
+				DI		=> I_DATA,
+				ADDR 	=> I_ADDR(7 downto 0),
+				DO 		=> RAM_out(i));
+	end generate;
+	
+	O_DATA <= RAM_out(0) when L_addr_high='0' else RAM_out(1);
+end arch;
+
